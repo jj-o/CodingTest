@@ -1,40 +1,41 @@
-# 1은 집이 있는 곳, 0은 집이 없는 곳
-# 집이 연결되었다는 것은 어떤 집이 좌우, 혹은 아래위로 다른 집이 있는 경우
-# 지도를 입력하여 단지수를 출력하고, 각 단지에 속하는 집의 수를 오름차순으로 정렬하여 출력
-# 지도의 크기 N이 입력되고, N개의 자료(0또는 1)가 입력됨
+# 1단지의 번호를 모두 새기고 다음 단지로 넘어가니까 dfs
+
+import sys
+input = sys.stdin.readline
 
 n = int(input())
-
-maps = []
-for _ in range(n):
-    maps.append(list(map(int,input())))
-    
-# 방문여부를 확인하여 무한 루프에 빠지는 것을 예방
+field = [list(map(int,input().strip())) for _ in range(n)] # strip을 써야 /n을 없앰앰
+dr,dc = [-1,0,1,0],[0,-1,0,1]
 visited = [[False]*n for _ in range(n)]
+count = 0 # 단지의 숫자
 
-def dfs(x,y):
-    # False 와 0은 둘 다 False로 평가될 수 있는 값이지만, dfs에서는 숫자적 합산이 되지 않도록 해야 하므로, return 0이 더 적절하다.
-    if x<0 or y<0 or x>=n or y>=n or maps[x][y]==0 or visited[x][y]:
-        return 0 
-    
-    visited[x][y] = True
-    count = 1
-    
-# 내부의 수를 어떻게 count 하지??
-    
-    count += dfs(x,y-1)
-    count += dfs(x,y+1)
-    count += dfs(x-1,y)
-    count += dfs(x+1,y)
-    return count
+
+def danzi(r,c):
+    num_cnt = 1
+    visited[r][c] = True # visited True 처리 꼭 하기
+    for i in range(4):
+        nr,nc = r+dr[i],c+dc[i]
+        if nr<0 or nc<0 or nr>=n or nc>=n: # continue는 반복문 내에서만 사용 가능
+            continue
+
+        if not visited[nr][nc] and field[nr][nc] == 1:
+            visited[nr][nc] = True
+            field[nr][nc] = count + 1 # 오류를 막음
+            num_cnt += danzi(nr,nc) # dfs함수 안에 dfs함수 안에 ``` 가지치기 -> 결국 모든 합이 됨
+    return num_cnt
 
 result = []
+
 for i in range(n):
     for j in range(n):
-        if maps[i][j]==1 and not visited[i][j]:
-            result.append(dfs(i,j))
+        if not visited[i][j] and field[i][j] == 1:
+
+            r = danzi(i,j)
+            result.append(r)
+            count += 1
+
+print(len(result))
 
 result.sort()
-print(len(result))
-for c in result:
-    print(c)
+for r in result:
+    print(r)
