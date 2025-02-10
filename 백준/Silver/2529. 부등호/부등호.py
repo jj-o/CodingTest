@@ -1,40 +1,38 @@
-# Backtracking 
-# 모든 경우의 수를 탐색하는 과정에서 불필요한 경로를 조기에 차단
-# 가능성이 없는 경로는 더 이상 탐색하지 않고 되돌아가는 방법
+# 순열 등으로 풀려고 하면 O(n!)
+# 경우의 수를 가지치기 해야함
 
-# 가능성이 없는 경로는 가지치기
-# 재귀를 이용하여 상태를 탐색
-# 정답이 아닐 경우, 이전 상태로 되돌아가기
+# 9
+# > < < < > > > < <
 
 n = int(input())
-inequality = input().split()
-visited = [0] * 10
-max_ans = ''
-min_ans = ''
+opers = input().split()
+visited = [False] * 10 # 숫자를 방문했는지 확인
 
-def check_condition(a,b,op):
-    if op == "<":
-        return a<b
+def comparison(a,b,oper):
+    if oper == '<':
+        return a<b # a<b 비교연산이 맞아야 True
     else:
         return a>b
-    
-def solve(idx,s):
-    global max_ans, min_ans
-    if idx == (n+1): # 모든 자리를 채웠을 때
-        if len(min_ans) == 0: # 아직 최솟값이 저장되지 않았다면
-            min_ans = s
-        else:
-            max_ans = s
-        return # return을 해야 런타임 에러가 안 남. 이미 숫자 선택이 끝났는데도 for문이 계속 실해
-    
-    # s[-1]은 현재까지 만든 수의 가장 마지막 수
-    for i in range(10):
-        if visited[i] == 0: 
-            if idx == 0 or check_condition(s[len(s)-1],str(i),inequality[idx-1]):
-                visited[i] = True # 현재 i 숫자를 사용 중임을 표시
-                solve(idx+1,s+str(i))
-                visited[i] = False
 
+def solve(idx, string_numbers):
+    global min_result, max_result
+    if idx == (n+1): # 마지막 수까지 사용
+        if len(min_result) == 0: # min_result에 저장된 값이 없으면
+            min_result = string_numbers
+        else:
+            max_result = string_numbers
+        return
+    
+    for i in range(10): # 작은 수부터 큰 수 순으로 부등호를 만족하는지 확인 
+        if visited[i] == False:
+            if idx == 0 or comparison(string_numbers[len(string_numbers)-1],str(i),opers[idx-1]):
+                visited[i] = True
+                solve(idx+1, string_numbers+str(i))
+                visited[i] = False # 재귀호출이 끝나면 다시 visited[i] = False로 하여 다른 경우의 수도 처리
+
+
+min_result, max_result= '',''
 solve(0,'')
-print(max_ans)
-print(min_ans)
+print(max_result)
+print(min_result)
+
